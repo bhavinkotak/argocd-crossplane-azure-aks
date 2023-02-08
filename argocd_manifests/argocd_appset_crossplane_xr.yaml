@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: crossplane-argocd
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  generators:
+  - git:
+      revision: main
+      repoURL: "https://gitlab.com/hackathon8230906/crossplane-argocd.git"
+      directories:
+        - path: claims
+        - path: compositions
+  template:
+    metadata:
+      name: '{{path.basename}}'
+      namespace: argocd
+    spec:
+      project: default
+      source:
+        repoURL: "https://gitlab.com/hackathon8230906/crossplane-argocd.git"
+        targetRevision: main
+        path: '{{path}}'
+      destination:
+        server: "https://kubernetes.default.svc"
+        namespace: crossplane-system
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ApplyOutofSyncOnly=true

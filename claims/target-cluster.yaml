@@ -6,8 +6,6 @@ metadata:
 spec:
   parameters:
     version: "1.24.9"
-    region: euw1
+    region: eastus2
     # nodeSize: small ### Supported values: small, medium, large
     # nodeCount: 3
-    # region:  use1, eus, euc
-
