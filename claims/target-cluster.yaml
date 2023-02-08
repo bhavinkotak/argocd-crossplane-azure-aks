@@ -1,19 +1,13 @@
 apiVersion: compositions.io/v1alpha1
 kind: ManagedCluster
 metadata:
-  name: uxpaks
-  namespace: managed
+  name: target-cluster
+  namespace: crossplane-system
 spec:
-  id: uxpaks
-  compositionSelector:
-    matchLabels:
-      cluster: aks
-      provider: official
   parameters:
-    version: "1.23.12"
+    version: "1.24.9"
+    region: euw1
     # nodeSize: small ### Supported values: small, medium, large
     # nodeCount: 3
     # region:  use1, eus, euc
-    region: euw1
-  writeConnectionSecretToRef:
-    name: uxpaks
+
