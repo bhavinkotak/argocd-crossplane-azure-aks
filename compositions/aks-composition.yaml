@@ -31,131 +31,107 @@ spec:
       fromFieldPath: spec.parameters.region
       toFieldPath: spec.forProvider.location
     - type: ToCompositeFieldPath
-      fromFieldPath: status.atProvider.id
-      toFieldPath: status.resourceGroupId
+      fromFieldPath: metadata.name
+      toFieldPath: status.resourceGroupName
 
-  # - name: virtual-network
-  #   base:
-  #     apiVersion: network.azure.upbound.io/v1beta1
-  #     kind: VirtualNetwork
-  #     spec:
-  #       forProvider:
-  #         resourceGroupNameSelector:
-  #           matchControllerRef: true
-  #         addressSpace:
-  #         - 10.0.0.0/16
-  #       providerConfigRef:
-  #         name: azure-provider
-  #   patches:
-  #   - type: PatchSet
-  #     patchSetName: metadata
-  #   - type: PatchSet
-  #     patchSetName: region
-  #   - fromFieldPath: spec.id
-  #     toFieldPath: metadata.name
-  #     transforms:
-  #     - type: string
-  #       string:
-  #         fmt: "vnet-%s"
+  - name: virtual-network
+    base:
+      apiVersion: network.azure.upbound.io/v1beta1
+      kind: VirtualNetwork
+      spec:
+        forProvider:
+          resourceGroupNameSelector:
+            matchControllerRef: true
+          addressSpace:
+          - 10.0.0.0/16
+        providerConfigRef:
+          name: azure-provider
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.region
+      toFieldPath: spec.forProvider.location
+    - fromFieldPath: metadata.name
+      toFieldPath: metadata.name
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-vnet"
 
-  # - name: subnet
-  #   base:
-  #     apiVersion: network.azure.upbound.io/v1beta1
-  #     kind: Subnet
-  #     spec:
-  #       forProvider:
-  #         resourceGroupNameSelector:
-  #           matchControllerRef: true
-  #         virtualNetworkNameSelector:
-  #           matchControllerRef: true
-  #         addressPrefixes:
-  #         - 10.0.0.0/19
-  #       providerConfigRef:
-  #         name: azure-provider
-  #   patches:
-  #   - type: PatchSet
-  #     patchSetName: metadata
-  #   - fromFieldPath: spec.id
-  #     toFieldPath: metadata.name
-  #     transforms:
-  #     - type: string
-  #       string:
-  #         fmt: "snet-%s"
+  - name: subnet
+    base:
+      apiVersion: network.azure.upbound.io/v1beta1
+      kind: Subnet
+      spec:
+        forProvider:
+          resourceGroupNameSelector:
+            matchControllerRef: true
+          virtualNetworkNameSelector:
+            matchControllerRef: true
+          addressPrefixes:
+          - 10.0.0.0/19
+        providerConfigRef:
+          name: azure-provider
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.region
+      toFieldPath: spec.forProvider.location
+    - fromFieldPath: metadata.name
+      toFieldPath: metadata.name
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-subnet"
 
-  # - name: akscluster
-  #   base:
-  #     apiVersion: containerservice.azure.upbound.io/v1beta1
-  #     kind: KubernetesCluster
-  #     spec:
-  #       forProvider:
-  #         dnsPrefix: uxpjet
-  #         roleBasedAccessControlEnabled: true
-  #         resourceGroupNameSelector:
-  #           matchControllerRef: true
-  #         defaultNodePool:
-  #         - name: default
-  #           nodeCount: 1
-  #           vmSize: Standard_D2s_v3
-  #           vnetSubnetIDSelector:
-  #             matchControllerRef: true
-  #         identity:
-  #         - type: SystemAssigned
-  #       writeConnectionSecretToRef:
-  #         namespace: upbound-system
-  #       providerConfigRef:
-  #         name: azure-provider
-  #   patches:
-  #   - type: PatchSet
-  #     patchSetName: metadata
-  #   - type: PatchSet
-  #     patchSetName: region
-  #   - fromFieldPath: spec.id
-  #     toFieldPath: metadata.name
-  #     transforms:
-  #     - type: string
-  #       string:
-  #         fmt: "cluster-%s"
-  #   - fromFieldPath: spec.id
-  #     toFieldPath: spec.writeConnectionSecretToRef.name
-  #     transforms:
-  #     - type: string
-  #       string:
-  #         fmt: "%s-akscluster"
-  #   - fromFieldPath: spec.parameters.version
-  #     toFieldPath: spec.forProvider.kubernetesVersion
-  #   # Values for default node group hardcoded
-  #   # - fromFieldPath: spec.id
-  #   #   toFieldPath: spec.forProvider.defaultNodePool[0].name
-  #   # - fromFieldPath: spec.parameters.nodeCount
-  #   #   toFieldPath: spec.forProvider.defaultNodePool[0].nodeCount
-  #   # - fromFieldPath: spec.parameters.nodeSize
-  #   #   toFieldPath: spec.forProvider.defaultNodePool[0].vmSize
-  #   #   transforms:
-  #   #   - type: map
-  #   #     map:
-  #   #       small: Standard_D2s_v3
-  #   #       medium: Standard_D4s_v3
-  #   #       large: Standard_D8s_v3
-  #   - fromFieldPath: spec.writeConnectionSecretToRef.namespace
-  #   - type: ToCompositeFieldPath
-  #     fromFieldPath: metadata.name
-  #     toFieldPath: status.clusterName
-  #   - type: ToCompositeFieldPath
-  #     fromFieldPath: status.conditions[0].status
-  #     toFieldPath: status.controlPlaneStatus
-  #   - type: ToCompositeFieldPath
-  #     fromFieldPath: metadata.name
-  #     toFieldPath: status.fargateProfileStatus
-  #     transforms:
-  #     - type: string
-  #       string:
-  #         fmt: "NA4-%s"
-  #   connectionDetails:
-  #   - fromConnectionSecretKey: kubeconfig
-  #   readinessChecks:
-  #   - type: MatchString
-  #     fieldPath: status.conditions[0].status
-  #     matchString: "True"
+  - name: akscluster
+    base:
+      apiVersion: containerservice.azure.upbound.io/v1beta1
+      kind: KubernetesCluster
+      spec:
+        forProvider:
+          dnsPrefix: target-cluster-dns
+          roleBasedAccessControlEnabled: true
+          resourceGroupNameSelector:
+            matchControllerRef: true
+          defaultNodePool:
+          - name: default
+            nodeCount: ''
+            vmSize: ''
+            vnetSubnetIDSelector:
+              matchControllerRef: true
+          identity:
+          - type: SystemAssigned
+        writeConnectionSecretToRef:
+          namespace: kube-system
+        providerConfigRef:
+          name: azure-provider
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.region
+      toFieldPath: spec.forProvider.location
+    - fromFieldPath: metadata.name
+      toFieldPath: spec.writeConnectionSecretToRef.name
+      transforms:
+      - type: string
+        string:
+          fmt: "%s-akscluster"
+    - fromFieldPath: spec.parameters.version
+      toFieldPath: spec.forProvider.kubernetesVersion
+    - fromFieldPath: spec.parameters.nodeCount
+      toFieldPath: spec.forProvider.defaultNodePool[0].nodeCount
+    - fromFieldPath: spec.parameters.nodeSize
+      toFieldPath: spec.forProvider.defaultNodePool[0].vmSize
+    - type: ToCompositeFieldPath
+      fromFieldPath: metadata.name
+      toFieldPath: status.clusterName
+    # - type: ToCompositeFieldPath
+    #   fromFieldPath: status.conditions[0].status
+    #   toFieldPath: status.controlPlaneStatus
+    connectionDetails:
+    - fromConnectionSecretKey: kubeconfig
+    readinessChecks:
+    - type: MatchString
+      fieldPath: status.conditions[0].status
+      matchString: "True"
 
   # - name: aksnode
   #   base:

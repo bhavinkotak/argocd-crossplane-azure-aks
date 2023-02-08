@@ -30,11 +30,11 @@ spec:
                   region:
                     description: Cloud region for provisioned resources
                     type: string
-                    default: use1
+                    default: eastus2
                   nodeSize:
-                    description: The node's size; supported; small, medium, large
+                    description: The node's size
                     type: string
-                    default: small
+                    default: Standard_B4ms
                   nodeCount:
                     description: The desired number of nodes
                     type: integer
