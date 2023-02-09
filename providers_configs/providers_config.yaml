@@ -9,3 +9,15 @@ spec:
       namespace: kube-system
       name: azure-secret
       key: creds
+---
+apiVersion: azure.upbound.io/v1beta1
+metadata:
+  name: kubernetes-provider
+kind: ProviderConfig
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      namespace: kube-system
+      name: azure-secret
+      key: creds
