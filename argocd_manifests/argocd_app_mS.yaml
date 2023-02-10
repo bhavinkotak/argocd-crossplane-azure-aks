@@ -1,14 +1,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  creationTimestamp: "2023-02-09T03:53:49Z"
   finalizers:
   - resources-finalizer.argocd.argoproj.io
-  generation: 247
   name: guestbook-argo
   namespace: argocd
-  resourceVersion: "872870"
-  uid: 52298874-f85b-47c1-bfe4-50827bb32f9b
 spec:
   destination:
     namespace: hackathon
